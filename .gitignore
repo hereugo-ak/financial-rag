@@ -1,0 +1,9 @@
+data/
+models/weights/
+.env
+*.parquet
+*.pkl
+*.pt
+wandb/
+__pycache__/
+.ipynb_checkpoints/

@@ -1,0 +1,32 @@
+{
+  "model": "Meta_Ensemble_v3_AllPatches",
+  "timestamp": "2026-03-19T21:50:55.672758",
+  "patches_applied": [
+    "rolling_recalib",
+    "fixed_regime_weights",
+    "adaptive_threshold"
+  ],
+  "active_models": [
+    "tft",
+    "gbm",
+    "bilstm",
+    "timemixer",
+    "gnn",
+    "chronos"
+  ],
+  "n_meta_features": 51,
+  "cv_mean": 0.7121,
+  "cv_std": 0.0203,
+  "val_acc": 0.548,
+  "val_f1": 0.5463,
+  "test_acc": 0.5127,
+  "test_f1": 0.5096,
+  "sharpe": 3.712,
+  "sortino": 6.629,
+  "calmar": 12.344,
+  "max_drawdown": -0.0315,
+  "alpha": 0.2055,
+  "adaptive_sharpe": 2.852,
+  "adaptive_alpha": -0.0425,
+  "runtime_min": 2.7
+}

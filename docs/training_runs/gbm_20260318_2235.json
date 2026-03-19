@@ -1,0 +1,83 @@
+{
+  "model": "GBM_Regime_Conditional_v2",
+  "timestamp": "2026-03-18T22:35:32.775437",
+  "val_accuracy": 0.4895,
+  "val_f1": 0.4895,
+  "val_mcc": -0.0094,
+  "cv_mean": 0.5077,
+  "cv_std": 0.0127,
+  "n_features": 60,
+  "n_specialists": 4,
+  "top10_shap": [
+    [
+      "daily_return",
+      0.051102
+    ],
+    [
+      "corr_nifty_sp500_20d",
+      0.02201
+    ],
+    [
+      "global_risk_score",
+      0.021506
+    ],
+    [
+      "ema_9",
+      0.020603
+    ],
+    [
+      "corr_nifty_sp500_60d",
+      0.014173
+    ],
+    [
+      "macro_us_10y_yield",
+      0.013999
+    ],
+    [
+      "bb_width",
+      0.010117
+    ],
+    [
+      "volume_ratio_20d",
+      0.009818
+    ],
+    [
+      "regime_duration",
+      0.00971
+    ],
+    [
+      "gold_prev_return",
+      0.009008
+    ]
+  ],
+  "trading": {
+    "sharpe": 4.098,
+    "max_drawdown": -0.0315,
+    "win_rate": 0.5941,
+    "total_return": 0.4372,
+    "bh_return": 0.0935,
+    "alpha": 0.3437
+  },
+  "lgb_params": {
+    "n_est": 801,
+    "lr": 0.00820854873848436,
+    "leaves": 103,
+    "depth": 9,
+    "mcs": 42,
+    "sub": 0.8046298312600504,
+    "col": 0.7480527455839283,
+    "alpha": 0.00010419041948754345,
+    "lam": 0.00038447105948821367
+  },
+  "xgb_params": {
+    "n_est": 223,
+    "lr": 0.06183726378385511,
+    "depth": 7,
+    "mcw": 38,
+    "sub": 0.8879995387843964,
+    "col": 0.4013391226218604,
+    "alpha": 0.008883259343233295,
+    "lam": 0.0028907546117424516
+  },
+  "runtime_min": 0.4
+}

@@ -1,0 +1,13 @@
+{
+  "built_at": "2026-03-19T04:38:57.154247",
+  "n_docs": 5138,
+  "corpus_breakdown": {
+    "price": 105,
+    "macro": 8,
+    "regime": 8,
+    "insights": 17,
+    "news": 5000
+  },
+  "embed_model": "sentence-transformers/all-mpnet-base-v2",
+  "chroma_dir": "C:\\Users\\HP\\Documents\\Sample DATA\\FINANCIAL RAG\\rag\\chroma_db"
+}

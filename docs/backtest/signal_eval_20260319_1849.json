@@ -1,0 +1,491 @@
+{
+  "generated_at": "2026-03-19T18:49:02.937209",
+  "val": {
+    "overall": {
+      "n_samples": 177,
+      "accuracy": 0.5424,
+      "precision": 0.5419,
+      "recall": 0.5429,
+      "f1_macro": 0.5395,
+      "mcc": 0.0849,
+      "auc_roc": 0.5344,
+      "avg_precision": 0.6335,
+      "confusion_matrix": [
+        [
+          41,
+          34
+        ],
+        [
+          47,
+          55
+        ]
+      ]
+    },
+    "by_regime": {
+      "Bull": {
+        "n_signals": 10,
+        "accuracy": 0.7,
+        "precision": 0.7,
+        "recall": 0.7083,
+        "f1": 0.697,
+        "mcc": 0.4082,
+        "auc_roc": 0.6667,
+        "buy_accuracy": 0.6,
+        "sell_accuracy": 0.8,
+        "buy_signals": 5,
+        "sell_signals": 5
+      },
+      "Bear": {
+        "n_signals": 97,
+        "accuracy": 0.5567,
+        "precision": 0.5585,
+        "recall": 0.5592,
+        "f1": 0.5559,
+        "mcc": 0.1177,
+        "auc_roc": 0.5745,
+        "buy_accuracy": 0.617,
+        "sell_accuracy": 0.5,
+        "buy_signals": 47,
+        "sell_signals": 50
+      },
+      "Sideways": {
+        "n_signals": 17,
+        "accuracy": 0.5294,
+        "precision": 0.4333,
+        "recall": 0.4333,
+        "f1": 0.4333,
+        "mcc": -0.1333,
+        "auc_roc": 0.3917,
+        "buy_accuracy": 0.6667,
+        "sell_accuracy": 0.2,
+        "buy_signals": 12,
+        "sell_signals": 5
+      },
+      "HighVol": {
+        "n_signals": 53,
+        "accuracy": 0.4906,
+        "precision": 0.4964,
+        "recall": 0.4963,
+        "f1": 0.4876,
+        "mcc": -0.0073,
+        "auc_roc": 0.4568,
+        "buy_accuracy": 0.6,
+        "sell_accuracy": 0.3929,
+        "buy_signals": 25,
+        "sell_signals": 28
+      }
+    },
+    "by_confidence": [
+      {
+        "decile": 1,
+        "conf_low": 0.014,
+        "conf_high": 0.124,
+        "n_signals": 12,
+        "accuracy": 0.5,
+        "buy_pct": 1.0
+      },
+      {
+        "decile": 2,
+        "conf_low": 0.124,
+        "conf_high": 0.183,
+        "n_signals": 16,
+        "accuracy": 0.75,
+        "buy_pct": 0.062
+      },
+      {
+        "decile": 3,
+        "conf_low": 0.183,
+        "conf_high": 0.261,
+        "n_signals": 9,
+        "accuracy": 0.3333,
+        "buy_pct": 0.0
+      },
+      {
+        "decile": 4,
+        "conf_low": 0.261,
+        "conf_high": 0.429,
+        "n_signals": 22,
+        "accuracy": 0.5455,
+        "buy_pct": 1.0
+      },
+      {
+        "decile": 5,
+        "conf_low": 0.429,
+        "conf_high": 0.505,
+        "n_signals": 28,
+        "accuracy": 0.5,
+        "buy_pct": 0.214
+      },
+      {
+        "decile": 6,
+        "conf_low": 0.505,
+        "conf_high": 0.576,
+        "n_signals": 10,
+        "accuracy": 0.8,
+        "buy_pct": 1.0
+      },
+      {
+        "decile": 7,
+        "conf_low": 0.576,
+        "conf_high": 0.682,
+        "n_signals": 17,
+        "accuracy": 0.7647,
+        "buy_pct": 1.0
+      },
+      {
+        "decile": 8,
+        "conf_low": 0.682,
+        "conf_high": 0.804,
+        "n_signals": 27,
+        "accuracy": 0.3333,
+        "buy_pct": 0.185
+      },
+      {
+        "decile": 9,
+        "conf_low": 0.804,
+        "conf_high": 0.907,
+        "n_signals": 17,
+        "accuracy": 0.5294,
+        "buy_pct": 0.765
+      },
+      {
+        "decile": 10,
+        "conf_low": 0.907,
+        "conf_high": 0.986,
+        "n_signals": 18,
+        "accuracy": 0.5556,
+        "buy_pct": 0.167
+      }
+    ],
+    "signal_stability": {
+      "overall_flip_rate": 0.3693,
+      "avg_signal_duration": 2.7,
+      "max_consecutive_buy": 12,
+      "max_consecutive_sell": 11
+    },
+    "calibration": {
+      "expected_calibration_error": 0.219,
+      "calibration_bins": [
+        {
+          "predicted": 0.039,
+          "actual": 0.571
+        },
+        {
+          "predicted": 0.152,
+          "actual": 0.714
+        },
+        {
+          "predicted": 0.285,
+          "actual": 0.455
+        },
+        {
+          "predicted": 0.42,
+          "actual": 0.417
+        },
+        {
+          "predicted": 0.512,
+          "actual": 0.538
+        },
+        {
+          "predicted": 0.641,
+          "actual": 0.545
+        },
+        {
+          "predicted": 0.765,
+          "actual": 0.7
+        },
+        {
+          "predicted": 0.831,
+          "actual": 0.625
+        },
+        {
+          "predicted": 0.936,
+          "actual": 0.625
+        }
+      ]
+    },
+    "false_signal_cost": {
+      "false_positive_n": 34,
+      "false_negative_n": 47,
+      "true_positive_n": 55,
+      "true_negative_n": 41,
+      "fp_avg_return": 0.0002,
+      "fn_avg_return": 0.0009,
+      "tp_avg_return": -0.0007,
+      "tn_avg_return": 0.0006,
+      "fp_total_cost_pct": 1.7,
+      "fn_total_cost_pct": 2.35
+    },
+    "lead_lag": [
+      {
+        "lag_days": 0,
+        "accuracy": 0.5424
+      },
+      {
+        "lag_days": 1,
+        "accuracy": 0.5739
+      },
+      {
+        "lag_days": 2,
+        "accuracy": 0.4229
+      },
+      {
+        "lag_days": 3,
+        "accuracy": 0.5287
+      },
+      {
+        "lag_days": 4,
+        "accuracy": 0.5087
+      },
+      {
+        "lag_days": 5,
+        "accuracy": 0.5291
+      }
+    ],
+    "calendar_effects": {
+      "by_weekday": {
+        "Mon": 0.5882,
+        "Tue": 0.5294,
+        "Wed": 0.5676,
+        "Thu": 0.5135,
+        "Fri": 0.5143
+      },
+      "month_end_accuracy": 0.3333,
+      "non_month_end_accuracy": 0.5497
+    }
+  },
+  "test": {
+    "overall": {
+      "n_samples": 355,
+      "accuracy": 0.4901,
+      "precision": 0.4878,
+      "recall": 0.4877,
+      "f1_macro": 0.4874,
+      "mcc": -0.0246,
+      "auc_roc": 0.4908,
+      "avg_precision": 0.4425,
+      "confusion_matrix": [
+        [
+          100,
+          95
+        ],
+        [
+          86,
+          74
+        ]
+      ]
+    },
+    "by_regime": {
+      "Bull": {
+        "n_signals": 50,
+        "accuracy": 0.46,
+        "precision": 0.46,
+        "recall": 0.4599,
+        "f1": 0.4598,
+        "mcc": -0.0801,
+        "auc_roc": 0.4696,
+        "buy_accuracy": 0.48,
+        "sell_accuracy": 0.44,
+        "buy_signals": 25,
+        "sell_signals": 25
+      },
+      "Bear": {
+        "n_signals": 154,
+        "accuracy": 0.4935,
+        "precision": 0.4896,
+        "recall": 0.4897,
+        "f1": 0.4893,
+        "mcc": -0.0208,
+        "auc_roc": 0.4886,
+        "buy_accuracy": 0.4559,
+        "sell_accuracy": 0.5233,
+        "buy_signals": 68,
+        "sell_signals": 86
+      },
+      "HighVol": {
+        "n_signals": 151,
+        "accuracy": 0.4967,
+        "precision": 0.4973,
+        "recall": 0.4972,
+        "f1": 0.4929,
+        "mcc": -0.0055,
+        "auc_roc": 0.5062,
+        "buy_accuracy": 0.4079,
+        "sell_accuracy": 0.5867,
+        "buy_signals": 76,
+        "sell_signals": 75
+      }
+    },
+    "by_confidence": [
+      {
+        "decile": 1,
+        "conf_low": 0.014,
+        "conf_high": 0.124,
+        "n_signals": 23,
+        "accuracy": 0.3043,
+        "buy_pct": 0.913
+      },
+      {
+        "decile": 2,
+        "conf_low": 0.124,
+        "conf_high": 0.183,
+        "n_signals": 46,
+        "accuracy": 0.5652,
+        "buy_pct": 0.152
+      },
+      {
+        "decile": 4,
+        "conf_low": 0.183,
+        "conf_high": 0.304,
+        "n_signals": 73,
+        "accuracy": 0.5342,
+        "buy_pct": 0.397
+      },
+      {
+        "decile": 5,
+        "conf_low": 0.304,
+        "conf_high": 0.431,
+        "n_signals": 21,
+        "accuracy": 0.5714,
+        "buy_pct": 0.286
+      },
+      {
+        "decile": 6,
+        "conf_low": 0.431,
+        "conf_high": 0.505,
+        "n_signals": 33,
+        "accuracy": 0.4848,
+        "buy_pct": 0.152
+      },
+      {
+        "decile": 7,
+        "conf_low": 0.505,
+        "conf_high": 0.576,
+        "n_signals": 42,
+        "accuracy": 0.4524,
+        "buy_pct": 0.929
+      },
+      {
+        "decile": 8,
+        "conf_low": 0.576,
+        "conf_high": 0.682,
+        "n_signals": 32,
+        "accuracy": 0.4062,
+        "buy_pct": 1.0
+      },
+      {
+        "decile": 9,
+        "conf_low": 0.682,
+        "conf_high": 0.827,
+        "n_signals": 40,
+        "accuracy": 0.475,
+        "buy_pct": 0.125
+      },
+      {
+        "decile": 10,
+        "conf_low": 0.827,
+        "conf_high": 0.986,
+        "n_signals": 38,
+        "accuracy": 0.4737,
+        "buy_pct": 0.658
+      }
+    ],
+    "signal_stability": {
+      "overall_flip_rate": 0.4294,
+      "avg_signal_duration": 2.3,
+      "max_consecutive_buy": 9,
+      "max_consecutive_sell": 16
+    },
+    "calibration": {
+      "expected_calibration_error": 0.2757,
+      "calibration_bins": [
+        {
+          "predicted": 0.037,
+          "actual": 0.435
+        },
+        {
+          "predicted": 0.157,
+          "actual": 0.5
+        },
+        {
+          "predicted": 0.282,
+          "actual": 0.435
+        },
+        {
+          "predicted": 0.417,
+          "actual": 0.471
+        },
+        {
+          "predicted": 0.527,
+          "actual": 0.483
+        },
+        {
+          "predicted": 0.638,
+          "actual": 0.441
+        },
+        {
+          "predicted": 0.767,
+          "actual": 0.425
+        },
+        {
+          "predicted": 0.831,
+          "actual": 0.375
+        },
+        {
+          "predicted": 0.935,
+          "actual": 0.44
+        }
+      ]
+    },
+    "false_signal_cost": {
+      "false_positive_n": 95,
+      "false_negative_n": 86,
+      "true_positive_n": 74,
+      "true_negative_n": 100,
+      "fp_avg_return": -0.0,
+      "fn_avg_return": -0.0,
+      "tp_avg_return": -0.0006,
+      "tn_avg_return": -0.0001,
+      "fp_total_cost_pct": 4.75,
+      "fn_total_cost_pct": 4.3
+    },
+    "lead_lag": [
+      {
+        "lag_days": 0,
+        "accuracy": 0.4901
+      },
+      {
+        "lag_days": 1,
+        "accuracy": 0.4689
+      },
+      {
+        "lag_days": 2,
+        "accuracy": 0.5099
+      },
+      {
+        "lag_days": 3,
+        "accuracy": 0.4716
+      },
+      {
+        "lag_days": 4,
+        "accuracy": 0.4872
+      },
+      {
+        "lag_days": 5,
+        "accuracy": 0.5057
+      }
+    ],
+    "calendar_effects": {
+      "by_weekday": {
+        "Mon": 0.5205,
+        "Tue": 0.44,
+        "Wed": 0.6212,
+        "Thu": 0.4571,
+        "Fri": 0.4286,
+        "5": 0.0
+      },
+      "month_end_accuracy": 0.4545,
+      "non_month_end_accuracy": 0.4913
+    }
+  }
+}

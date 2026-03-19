@@ -1,0 +1,532 @@
+{
+  "generated_at": "2026-03-19T18:49:25.015896",
+  "global_importance": {
+    "daily_return": {
+      "lgb_importance": 42.0,
+      "description": "Yesterday's NIFTY return",
+      "xgb_importance": 0.0253,
+      "combined_importance": 21.0127
+    },
+    "bb_width": {
+      "lgb_importance": 40.0,
+      "description": "bb_width",
+      "xgb_importance": 0.0248,
+      "combined_importance": 20.0124
+    },
+    "candle_body_ratio": {
+      "lgb_importance": 39.0,
+      "description": "candle_body_ratio",
+      "xgb_importance": 0.0235,
+      "combined_importance": 19.5117
+    },
+    "sp500_prev_return": {
+      "lgb_importance": 39.0,
+      "description": "US S&P 500 previous session return",
+      "xgb_importance": 0.0235,
+      "combined_importance": 19.5117
+    },
+    "gold_prev_return": {
+      "lgb_importance": 38.0,
+      "description": "Gold previous session return (safe haven)",
+      "xgb_importance": 0.0242,
+      "combined_importance": 19.0121
+    },
+    "india_vix": {
+      "lgb_importance": 38.0,
+      "description": "India VIX (fear gauge)",
+      "xgb_importance": 0.0262,
+      "combined_importance": 19.0131
+    },
+    "macd_hist": {
+      "lgb_importance": 37.0,
+      "description": "MACD histogram (trend direction)",
+      "xgb_importance": 0.0254,
+      "combined_importance": 18.5127
+    },
+    "usdinr_prev_return": {
+      "lgb_importance": 37.0,
+      "description": "USD/INR change (FX risk)",
+      "xgb_importance": 0.0233,
+      "combined_importance": 18.5116
+    },
+    "log_return": {
+      "lgb_importance": 33.0,
+      "description": "log_return",
+      "xgb_importance": 0.0246,
+      "combined_importance": 16.5123
+    },
+    "atr_pct": {
+      "lgb_importance": 33.0,
+      "description": "ATR as % of price (volatility)",
+      "xgb_importance": 0.0263,
+      "combined_importance": 16.5131
+    },
+    "prob_bear": {
+      "lgb_importance": 33.0,
+      "description": "HMM Bear regime probability",
+      "xgb_importance": 0.0388,
+      "combined_importance": 16.5194
+    },
+    "macro_us_10y_yield": {
+      "lgb_importance": 33.0,
+      "description": "US 10-year Treasury yield",
+      "xgb_importance": 0.024,
+      "combined_importance": 16.512
+    },
+    "volume_ratio_20d": {
+      "lgb_importance": 31.0,
+      "description": "volume_ratio_20d",
+      "xgb_importance": 0.0242,
+      "combined_importance": 15.5121
+    },
+    "roc_10": {
+      "lgb_importance": 30.0,
+      "description": "Rate of change 10-day",
+      "xgb_importance": 0.0218,
+      "combined_importance": 15.0109
+    },
+    "crude_prev_return": {
+      "lgb_importance": 30.0,
+      "description": "Crude oil previous session return",
+      "xgb_importance": 0.0224,
+      "combined_importance": 15.0112
+    },
+    "prob_bull": {
+      "lgb_importance": 29.0,
+      "description": "HMM Bull regime probability",
+      "xgb_importance": 0.1217,
+      "combined_importance": 14.5609
+    },
+    "bb_pct": {
+      "lgb_importance": 28.0,
+      "description": "Bollinger Band %B (overbought/oversold)",
+      "xgb_importance": 0.0236,
+      "combined_importance": 14.0118
+    },
+    "hv_10": {
+      "lgb_importance": 28.0,
+      "description": "hv_10",
+      "xgb_importance": 0.0263,
+      "combined_importance": 14.0131
+    },
+    "rsi_21": {
+      "lgb_importance": 25.0,
+      "description": "RSI 21-day (longer momentum)",
+      "xgb_importance": 0.0243,
+      "combined_importance": 12.5122
+    },
+    "return_5d": {
+      "lgb_importance": 24.0,
+      "description": "5-day rolling return",
+      "xgb_importance": 0.0224,
+      "combined_importance": 12.0112
+    }
+  },
+  "regime_importance": {
+    "Bull": {
+      "n_samples": 1435,
+      "top_features": [
+        {
+          "feature": "hv_10",
+          "importance": 0.2677,
+          "description": "hv_10"
+        },
+        {
+          "feature": "atr_pct",
+          "importance": 0.2665,
+          "description": "ATR as % of price (volatility)"
+        },
+        {
+          "feature": "nasdaq_prev_return",
+          "importance": 0.2593,
+          "description": "US NASDAQ previous session return"
+        },
+        {
+          "feature": "us_overnight_composite",
+          "importance": 0.2578,
+          "description": "Composite US overnight signal"
+        },
+        {
+          "feature": "sp500_prev_return",
+          "importance": 0.2508,
+          "description": "US S&P 500 previous session return"
+        },
+        {
+          "feature": "global_risk_score",
+          "importance": 0.2391,
+          "description": "Global risk-on/risk-off score"
+        },
+        {
+          "feature": "prob_bear",
+          "importance": 0.231,
+          "description": "HMM Bear regime probability"
+        },
+        {
+          "feature": "daily_return",
+          "importance": 0.2148,
+          "description": "Yesterday's NIFTY return"
+        },
+        {
+          "feature": "log_return",
+          "importance": 0.2125,
+          "description": "log_return"
+        },
+        {
+          "feature": "india_vix",
+          "importance": 0.1741,
+          "description": "India VIX (fear gauge)"
+        }
+      ]
+    },
+    "Bear": {
+      "n_samples": 662,
+      "top_features": [
+        {
+          "feature": "daily_return",
+          "importance": 0.4147,
+          "description": "Yesterday's NIFTY return"
+        },
+        {
+          "feature": "log_return",
+          "importance": 0.4139,
+          "description": "log_return"
+        },
+        {
+          "feature": "ema21_vs_ema50",
+          "importance": 0.3017,
+          "description": "Medium vs long EMA crossover"
+        },
+        {
+          "feature": "candle_body_ratio",
+          "importance": 0.2054,
+          "description": "candle_body_ratio"
+        },
+        {
+          "feature": "hv_21",
+          "importance": 0.1934,
+          "description": "Historical volatility 21-day"
+        },
+        {
+          "feature": "global_risk_score",
+          "importance": 0.1928,
+          "description": "Global risk-on/risk-off score"
+        },
+        {
+          "feature": "macd_hist",
+          "importance": 0.1874,
+          "description": "MACD histogram (trend direction)"
+        },
+        {
+          "feature": "return_5d",
+          "importance": 0.1695,
+          "description": "5-day rolling return"
+        },
+        {
+          "feature": "return_63d",
+          "importance": 0.1632,
+          "description": "63-day rolling return (quarterly)"
+        },
+        {
+          "feature": "us_overnight_composite",
+          "importance": 0.1592,
+          "description": "Composite US overnight signal"
+        }
+      ]
+    },
+    "Sideways": {
+      "n_samples": 606,
+      "top_features": [
+        {
+          "feature": "daily_return",
+          "importance": 0.2508,
+          "description": "Yesterday's NIFTY return"
+        },
+        {
+          "feature": "log_return",
+          "importance": 0.249,
+          "description": "log_return"
+        },
+        {
+          "feature": "global_risk_score",
+          "importance": 0.1969,
+          "description": "Global risk-on/risk-off score"
+        },
+        {
+          "feature": "macro_us_10y_yield",
+          "importance": 0.1826,
+          "description": "US 10-year Treasury yield"
+        },
+        {
+          "feature": "candle_body_ratio",
+          "importance": 0.1696,
+          "description": "candle_body_ratio"
+        },
+        {
+          "feature": "nasdaq_prev_return",
+          "importance": 0.1431,
+          "description": "US NASDAQ previous session return"
+        },
+        {
+          "feature": "us_overnight_composite",
+          "importance": 0.1411,
+          "description": "Composite US overnight signal"
+        },
+        {
+          "feature": "sp500_prev_return",
+          "importance": 0.1368,
+          "description": "US S&P 500 previous session return"
+        },
+        {
+          "feature": "india_vix",
+          "importance": 0.1192,
+          "description": "India VIX (fear gauge)"
+        },
+        {
+          "feature": "dist_from_52w_high",
+          "importance": 0.1146,
+          "description": "dist_from_52w_high"
+        }
+      ]
+    },
+    "HighVol": {
+      "n_samples": 1165,
+      "top_features": [
+        {
+          "feature": "daily_return",
+          "importance": 0.3734,
+          "description": "Yesterday's NIFTY return"
+        },
+        {
+          "feature": "log_return",
+          "importance": 0.372,
+          "description": "log_return"
+        },
+        {
+          "feature": "atr_pct",
+          "importance": 0.2629,
+          "description": "ATR as % of price (volatility)"
+        },
+        {
+          "feature": "sp500_prev_return",
+          "importance": 0.2595,
+          "description": "US S&P 500 previous session return"
+        },
+        {
+          "feature": "us_overnight_composite",
+          "importance": 0.2581,
+          "description": "Composite US overnight signal"
+        },
+        {
+          "feature": "prob_bull",
+          "importance": 0.2541,
+          "description": "HMM Bull regime probability"
+        },
+        {
+          "feature": "nasdaq_prev_return",
+          "importance": 0.2504,
+          "description": "US NASDAQ previous session return"
+        },
+        {
+          "feature": "prob_bear",
+          "importance": 0.2469,
+          "description": "HMM Bear regime probability"
+        },
+        {
+          "feature": "global_risk_score",
+          "importance": 0.2415,
+          "description": "Global risk-on/risk-off score"
+        },
+        {
+          "feature": "bb_width",
+          "importance": 0.1449,
+          "description": "bb_width"
+        }
+      ]
+    }
+  },
+  "latest_prediction": {
+    "prediction": "BUY",
+    "probability": 0.5529,
+    "baseline_prob": 0.5811,
+    "top_drivers": [
+      {
+        "feature": "prob_bear",
+        "value": 1.3387,
+        "contribution": 0.0875,
+        "direction": "\u2191 BUY",
+        "description": "HMM Bear regime probability"
+      },
+      {
+        "feature": "india_vix",
+        "value": -0.1111,
+        "contribution": 0.0772,
+        "direction": "\u2191 BUY",
+        "description": "India VIX (fear gauge)"
+      },
+      {
+        "feature": "volume_ratio_20d",
+        "value": -3.9114,
+        "contribution": 0.0689,
+        "direction": "\u2191 BUY",
+        "description": "volume_ratio_20d"
+      },
+      {
+        "feature": "sp500_prev_return",
+        "value": 0.7974,
+        "contribution": 0.0478,
+        "direction": "\u2191 BUY",
+        "description": "US S&P 500 previous session return"
+      },
+      {
+        "feature": "bb_width",
+        "value": 0.9668,
+        "contribution": 0.037,
+        "direction": "\u2191 BUY",
+        "description": "bb_width"
+      },
+      {
+        "feature": "price_vs_ema200",
+        "value": -1.0472,
+        "contribution": 0.0255,
+        "direction": "\u2191 BUY",
+        "description": "Price relative to 200-day EMA (trend)"
+      },
+      {
+        "feature": "hv_10",
+        "value": 0.2818,
+        "contribution": 0.0254,
+        "direction": "\u2191 BUY",
+        "description": "hv_10"
+      },
+      {
+        "feature": "daily_return",
+        "value": 0.5243,
+        "contribution": -0.0167,
+        "direction": "\u2193 SELL",
+        "description": "Yesterday's NIFTY return"
+      },
+      {
+        "feature": "return_63d",
+        "value": -1.0769,
+        "contribution": 0.0163,
+        "direction": "\u2191 BUY",
+        "description": "63-day rolling return (quarterly)"
+      },
+      {
+        "feature": "usdinr_prev_return",
+        "value": 0.3336,
+        "contribution": -0.0161,
+        "direction": "\u2193 SELL",
+        "description": "USD/INR change (FX risk)"
+      },
+      {
+        "feature": "ema21_vs_ema50",
+        "value": -1.1035,
+        "contribution": -0.012,
+        "direction": "\u2193 SELL",
+        "description": "Medium vs long EMA crossover"
+      },
+      {
+        "feature": "log_return",
+        "value": 0.5283,
+        "contribution": -0.0036,
+        "direction": "\u2193 SELL",
+        "description": "log_return"
+      },
+      {
+        "feature": "gold_prev_return",
+        "value": -1.0828,
+        "contribution": 0.0023,
+        "direction": "\u2191 BUY",
+        "description": "Gold previous session return (safe haven)"
+      },
+      {
+        "feature": "return_5d",
+        "value": -0.9928,
+        "contribution": 0.0,
+        "direction": "\u2193 SELL",
+        "description": "5-day rolling return"
+      },
+      {
+        "feature": "return_21d",
+        "value": -1.3193,
+        "contribution": 0.0,
+        "direction": "\u2193 SELL",
+        "description": "21-day rolling return (monthly)"
+      }
+    ]
+  },
+  "importance_stability": {
+    "windows": [
+      {
+        "window": 1,
+        "top_5_features": [
+          "flag_credit_stress",
+          "flag_yield_inverted",
+          "prob_bear",
+          "prob_highvol",
+          "macro_yield_spread"
+        ]
+      },
+      {
+        "window": 2,
+        "top_5_features": [
+          "flag_credit_stress",
+          "flag_yield_inverted",
+          "prob_bear",
+          "prob_bull",
+          "prob_sideways"
+        ]
+      },
+      {
+        "window": 3,
+        "top_5_features": [
+          "flag_credit_stress",
+          "flag_yield_inverted",
+          "prob_bull",
+          "prob_bear",
+          "atr_pct"
+        ]
+      },
+      {
+        "window": 4,
+        "top_5_features": [
+          "flag_credit_stress",
+          "prob_bull",
+          "prob_bear",
+          "dist_from_52w_high",
+          "rsi_21"
+        ]
+      },
+      {
+        "window": 5,
+        "top_5_features": [
+          "flag_credit_stress",
+          "prob_bull",
+          "prob_bear",
+          "india_vix",
+          "rsi_14"
+        ]
+      },
+      {
+        "window": 6,
+        "top_5_features": [
+          "flag_credit_stress",
+          "prob_bull",
+          "india_vix",
+          "prob_bear",
+          "atr_pct"
+        ]
+      }
+    ],
+    "top_feature_stability": 1.333,
+    "most_common_top_feature": "flag_credit_stress"
+  },
+  "insights": [
+    "Top 3 predictive features: daily_return, bb_width, candle_body_ratio",
+    "In Bull regime, most important: hv_10",
+    "In Bear regime, most important: daily_return",
+    "In Sideways regime, most important: daily_return",
+    "In HighVol regime, most important: daily_return"
+  ]
+}

@@ -1,0 +1,10 @@
+{
+  "generated_at": "2026-03-19T18:40:22.879341",
+  "methodology": {
+    "risk_free_rate": 0.065,
+    "transaction_cost": 0.0005,
+    "slippage": 0.0002,
+    "position_sizing": "regime-aware fractional Kelly",
+    "validation": "expanding window walk-forward"
+  }
+}

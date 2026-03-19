@@ -1,0 +1,37 @@
+{
+  "model": "Meta_Ensemble_v1",
+  "timestamp": "2026-03-18T23:40:38.758001",
+  "val_acc": 0.4886,
+  "val_f1": 0.4885,
+  "val_mcc": -0.0068,
+  "test_acc": 0.4899,
+  "test_f1": 0.4827,
+  "test_mcc": -0.0327,
+  "trading": {
+    "sharpe": 3.797,
+    "max_drawdown": -0.0315,
+    "win_rate": 0.5799,
+    "total_return": 0.3731,
+    "bh_return": 0.0779,
+    "alpha": 0.2952
+  },
+  "meta_hp": {
+    "C": 4.5705630998014515,
+    "l1_ratio": 0.5986584841970366
+  },
+  "n_meta_feats": 11,
+  "runtime_min": 0.1,
+  "col_names": [
+    "tft_p_sell",
+    "tft_p_buy",
+    "tft_margin",
+    "gbm_p_sell",
+    "gbm_p_buy",
+    "gbm_margin",
+    "regime_0",
+    "regime_1",
+    "regime_2",
+    "regime_3",
+    "regime_confidence"
+  ]
+}

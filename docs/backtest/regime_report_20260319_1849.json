@@ -1,0 +1,355 @@
+{
+  "generated_at": "2026-03-19T18:49:42.454026",
+  "regime_statistics": {
+    "per_regime": {
+      "Bull_Trending": {
+        "n_days": 1497,
+        "frequency_pct": 33.0,
+        "avg_duration_days": 46.8,
+        "max_duration_days": 175,
+        "n_episodes": 32
+      },
+      "Bear_Trending": {
+        "n_days": 1020,
+        "frequency_pct": 22.5,
+        "avg_duration_days": 68.0,
+        "max_duration_days": 257,
+        "n_episodes": 15
+      },
+      "Sideways_LowVol": {
+        "n_days": 627,
+        "frequency_pct": 13.8,
+        "avg_duration_days": 57.0,
+        "max_duration_days": 312,
+        "n_episodes": 11
+      },
+      "HighVol_Chaotic": {
+        "n_days": 1393,
+        "frequency_pct": 30.7,
+        "avg_duration_days": 37.6,
+        "max_duration_days": 127,
+        "n_episodes": 37
+      }
+    },
+    "transition_matrix": {
+      "Bull_Trending": {
+        "Bull_Trending": 0.979,
+        "Bear_Trending": 0.0,
+        "Sideways_LowVol": 0.007,
+        "HighVol_Chaotic": 0.014
+      },
+      "Bear_Trending": {
+        "Bull_Trending": 0.0,
+        "Bear_Trending": 0.985,
+        "Sideways_LowVol": 0.0,
+        "HighVol_Chaotic": 0.015
+      },
+      "Sideways_LowVol": {
+        "Bull_Trending": 0.014,
+        "Bear_Trending": 0.002,
+        "Sideways_LowVol": 0.982,
+        "HighVol_Chaotic": 0.002
+      },
+      "HighVol_Chaotic": {
+        "Bull_Trending": 0.016,
+        "Bear_Trending": 0.01,
+        "Sideways_LowVol": 0.001,
+        "HighVol_Chaotic": 0.973
+      }
+    },
+    "total_days": 4537
+  },
+  "val": {
+    "model_performance": {
+      "Bull_Trending": {
+        "n_samples": 10,
+        "accuracy": 0.7,
+        "f1_macro": 0.697,
+        "mcc": 0.4082,
+        "buy_signal_accuracy": 0.6,
+        "sell_signal_accuracy": 0.8,
+        "high_confidence_accuracy": 0.7143,
+        "n_high_conf": 7,
+        "signal_color": "GREEN  (most reliable)"
+      },
+      "Bear_Trending": {
+        "n_samples": 97,
+        "accuracy": 0.5567,
+        "f1_macro": 0.5559,
+        "mcc": 0.1177,
+        "buy_signal_accuracy": 0.617,
+        "sell_signal_accuracy": 0.5,
+        "high_confidence_accuracy": 0.5857,
+        "n_high_conf": 70,
+        "signal_color": "RED    (trade cautiously)"
+      },
+      "Sideways_LowVol": {
+        "n_samples": 17,
+        "accuracy": 0.5294,
+        "f1_macro": 0.4333,
+        "mcc": -0.1333,
+        "buy_signal_accuracy": 0.6667,
+        "sell_signal_accuracy": 0.2,
+        "high_confidence_accuracy": 0.4667,
+        "n_high_conf": 15,
+        "signal_color": "BLUE   (reduce size)"
+      },
+      "HighVol_Chaotic": {
+        "n_samples": 53,
+        "accuracy": 0.4906,
+        "f1_macro": 0.4876,
+        "mcc": -0.0073,
+        "buy_signal_accuracy": 0.6,
+        "sell_signal_accuracy": 0.3929,
+        "high_confidence_accuracy": 0.3846,
+        "n_high_conf": 26,
+        "signal_color": "ORANGE (minimal/no trading)"
+      }
+    },
+    "trading_performance": {
+      "Bull_Trending": {
+        "n_days": 10,
+        "position_size": 1.0,
+        "strategy_return_pct": -0.18,
+        "bh_return_pct": 1.38,
+        "alpha_pct": -1.56,
+        "sharpe": -1.022,
+        "max_drawdown_pct": -0.5,
+        "win_rate": 0.5,
+        "avg_buy_return": 0.0008,
+        "avg_sell_return": 0.0019,
+        "signal_color": "GREEN  (most reliable)",
+        "trading_recommendation": "FULL POSITION \u2014 bull regime, proceed with confidence"
+      },
+      "Bear_Trending": {
+        "n_days": 97,
+        "position_size": 0.75,
+        "strategy_return_pct": -1.51,
+        "bh_return_pct": 3.33,
+        "alpha_pct": -4.83,
+        "sharpe": -0.835,
+        "max_drawdown_pct": -2.86,
+        "win_rate": 0.4433,
+        "avg_buy_return": 0.0001,
+        "avg_sell_return": 0.0006,
+        "signal_color": "RED    (trade cautiously)",
+        "trading_recommendation": "REDUCED POSITION (50%) \u2014 bear regime, risk management critical"
+      },
+      "Sideways_LowVol": {
+        "n_days": 17,
+        "position_size": 0.5,
+        "strategy_return_pct": -1.16,
+        "bh_return_pct": -1.96,
+        "alpha_pct": 0.81,
+        "sharpe": -5.456,
+        "max_drawdown_pct": -1.34,
+        "win_rate": 0.4118,
+        "avg_buy_return": -0.0019,
+        "avg_sell_return": 0.0008,
+        "signal_color": "BLUE   (reduce size)",
+        "trading_recommendation": "HALF POSITION (50%) \u2014 sideways market, mean-reversion preferred"
+      },
+      "HighVol_Chaotic": {
+        "n_days": 53,
+        "position_size": 0.25,
+        "strategy_return_pct": -0.85,
+        "bh_return_pct": 0.84,
+        "alpha_pct": -1.69,
+        "sharpe": -2.737,
+        "max_drawdown_pct": -1.13,
+        "win_rate": 0.4528,
+        "avg_buy_return": -0.0007,
+        "avg_sell_return": 0.0009,
+        "signal_color": "ORANGE (minimal/no trading)",
+        "trading_recommendation": "SMALL POSITION (25%) \u2014 reduce size significantly in HighVol"
+      }
+    },
+    "transition_analysis": {
+      "n_transitions": 7,
+      "post_transition_accuracy": 0.4571,
+      "stable_regime_accuracy": 0.5634,
+      "accuracy_drop_at_transition": 0.1062,
+      "most_common_transitions": {
+        "Bear_Trending \u2192 HighVol_Chaotic": 3,
+        "HighVol_Chaotic \u2192 Bear_Trending": 2,
+        "HighVol_Chaotic \u2192 Bull_Trending": 1,
+        "Bull_Trending \u2192 Sideways_LowVol": 1
+      },
+      "recommendation": "Reduce position size for first 3-5 days after regime transition. Accuracy drops 10.6% at transitions."
+    },
+    "position_sizing": [
+      {
+        "regime": "Bull_Trending",
+        "historical_accuracy": 0.5,
+        "historical_sharpe": -1.022,
+        "recommended_size": "100%",
+        "half_kelly_size": "0%",
+        "alpha": -1.56,
+        "recommendation": "FULL POSITION \u2014 bull regime, proceed with confidence"
+      },
+      {
+        "regime": "Bear_Trending",
+        "historical_accuracy": 0.443,
+        "historical_sharpe": -0.835,
+        "recommended_size": "75%",
+        "half_kelly_size": "0%",
+        "alpha": -4.83,
+        "recommendation": "REDUCED POSITION (50%) \u2014 bear regime, risk management critical"
+      },
+      {
+        "regime": "Sideways_LowVol",
+        "historical_accuracy": 0.412,
+        "historical_sharpe": -5.456,
+        "recommended_size": "50%",
+        "half_kelly_size": "8%",
+        "alpha": 0.81,
+        "recommendation": "HALF POSITION (50%) \u2014 sideways market, mean-reversion preferred"
+      },
+      {
+        "regime": "HighVol_Chaotic",
+        "historical_accuracy": 0.453,
+        "historical_sharpe": -2.737,
+        "recommended_size": "25%",
+        "half_kelly_size": "0%",
+        "alpha": -1.69,
+        "recommendation": "SMALL POSITION (25%) \u2014 reduce size significantly in HighVol"
+      }
+    ]
+  },
+  "test": {
+    "model_performance": {
+      "Bull_Trending": {
+        "n_samples": 50,
+        "accuracy": 0.46,
+        "f1_macro": 0.4598,
+        "mcc": -0.0801,
+        "buy_signal_accuracy": 0.48,
+        "sell_signal_accuracy": 0.44,
+        "high_confidence_accuracy": 0.4211,
+        "n_high_conf": 38,
+        "signal_color": "GREEN  (most reliable)"
+      },
+      "Bear_Trending": {
+        "n_samples": 154,
+        "accuracy": 0.4935,
+        "f1_macro": 0.4893,
+        "mcc": -0.0208,
+        "buy_signal_accuracy": 0.4559,
+        "sell_signal_accuracy": 0.5233,
+        "high_confidence_accuracy": 0.4691,
+        "n_high_conf": 81,
+        "signal_color": "RED    (trade cautiously)"
+      },
+      "Sideways_LowVol": {
+        "n_samples": 0,
+        "note": "too few samples"
+      },
+      "HighVol_Chaotic": {
+        "n_samples": 151,
+        "accuracy": 0.4967,
+        "f1_macro": 0.4929,
+        "mcc": -0.0055,
+        "buy_signal_accuracy": 0.4079,
+        "sell_signal_accuracy": 0.5867,
+        "high_confidence_accuracy": 0.5227,
+        "n_high_conf": 88,
+        "signal_color": "ORANGE (minimal/no trading)"
+      }
+    },
+    "trading_performance": {
+      "Bull_Trending": {
+        "n_days": 50,
+        "position_size": 1.0,
+        "strategy_return_pct": -0.49,
+        "bh_return_pct": -5.3,
+        "alpha_pct": 4.8,
+        "sharpe": -0.308,
+        "max_drawdown_pct": -4.11,
+        "win_rate": 0.4,
+        "avg_buy_return": -0.0015,
+        "avg_sell_return": -0.0007,
+        "signal_color": "GREEN  (most reliable)",
+        "trading_recommendation": "FULL POSITION \u2014 bull regime, proceed with confidence"
+      },
+      "Bear_Trending": {
+        "n_days": 154,
+        "position_size": 0.75,
+        "strategy_return_pct": -0.19,
+        "bh_return_pct": 5.52,
+        "alpha_pct": -5.71,
+        "sharpe": -0.035,
+        "max_drawdown_pct": -2.73,
+        "win_rate": 0.5065,
+        "avg_buy_return": 0.0003,
+        "avg_sell_return": 0.0004,
+        "signal_color": "RED    (trade cautiously)",
+        "trading_recommendation": "REDUCED POSITION (50%) \u2014 bear regime, risk management critical"
+      },
+      "Sideways_LowVol": {
+        "n_days": 0
+      },
+      "HighVol_Chaotic": {
+        "n_days": 151,
+        "position_size": 0.25,
+        "strategy_return_pct": 0.24,
+        "bh_return_pct": -6.12,
+        "alpha_pct": 6.35,
+        "sharpe": 0.255,
+        "max_drawdown_pct": -1.15,
+        "win_rate": 0.5033,
+        "avg_buy_return": -0.0004,
+        "avg_sell_return": -0.0004,
+        "signal_color": "ORANGE (minimal/no trading)",
+        "trading_recommendation": "SMALL POSITION (25%) \u2014 reduce size significantly in HighVol"
+      }
+    },
+    "transition_analysis": {
+      "n_transitions": 6,
+      "post_transition_accuracy": 0.4,
+      "stable_regime_accuracy": 0.4985,
+      "accuracy_drop_at_transition": 0.0985,
+      "most_common_transitions": {
+        "Bear_Trending \u2192 HighVol_Chaotic": 2,
+        "HighVol_Chaotic \u2192 Bull_Trending": 2,
+        "Bull_Trending \u2192 HighVol_Chaotic": 1,
+        "HighVol_Chaotic \u2192 Bear_Trending": 1
+      },
+      "recommendation": "Reduce position size for first 3-5 days after regime transition. Accuracy drops 9.8% at transitions."
+    },
+    "position_sizing": [
+      {
+        "regime": "Bull_Trending",
+        "historical_accuracy": 0.4,
+        "historical_sharpe": -0.308,
+        "recommended_size": "100%",
+        "half_kelly_size": "6%",
+        "alpha": 4.8,
+        "recommendation": "FULL POSITION \u2014 bull regime, proceed with confidence"
+      },
+      {
+        "regime": "Bear_Trending",
+        "historical_accuracy": 0.506,
+        "historical_sharpe": -0.035,
+        "recommended_size": "75%",
+        "half_kelly_size": "0%",
+        "alpha": -5.71,
+        "recommendation": "REDUCED POSITION (50%) \u2014 bear regime, risk management critical"
+      },
+      {
+        "regime": "HighVol_Chaotic",
+        "historical_accuracy": 0.503,
+        "historical_sharpe": 0.255,
+        "recommended_size": "25%",
+        "half_kelly_size": "0%",
+        "alpha": 6.35,
+        "recommendation": "SMALL POSITION (25%) \u2014 reduce size significantly in HighVol"
+      }
+    ]
+  },
+  "key_findings": [
+    "Best performance in Bull_Trending regime (70.0% accuracy)",
+    "Weakest performance in HighVol_Chaotic regime (49.1% accuracy)",
+    "Reduce position size by 75% in HighVol regime",
+    "Model is most reliable in Bull regime \u2014 full position sizing appropriate"
+  ]
+}
