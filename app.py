@@ -1,21 +1,26 @@
 """
 HuggingFace Space - Meta Ensemble Inference Service
 ====================================================
-QI × Financial RAG · Production v2.2
+QI x Financial RAG - Production v2.3
 Author: Abuzar Khan
 
-FIXED from v2.1:
+v2.3 fixes:
+  - Regime model loads with graceful degradation (missing hmmlearn won't crash app)
+  - Each optional model (scaler, regime, metadata) loads independently
+  - Only meta_ensemble failure is fatal; all others degrade gracefully
+  - hmmlearn added to requirements.txt
+
+v2.2 fixes:
   - Multi-path file discovery: looks in BOTH models/weights/ AND models/configs/
-  - Handles naming variants: scaler.pkl vs feature_scaler.pkl, feature_names.json vs feature_metadata.json
+  - Handles naming variants: scaler.pkl vs feature_scaler.pkl
   - Feature count loaded from metadata instead of hardcoded
   - Signal thresholds configurable via environment variables
   - Pydantic protected_namespaces warning resolved
-  - No hardcoded paths or filenames
 
 Endpoints:
-  GET  /          → health check + model status
-  POST /predict   → feature vector → BUY/HOLD/SELL + confidence + regime + SHAP
-  GET  /warmup    → pre-warm model to avoid cold start latency on first hit
+  GET  /          -> health check + model status
+  POST /predict   -> feature vector -> BUY/HOLD/SELL + confidence + regime
+  GET  /warmup    -> pre-warm model to avoid cold start latency on first hit
 """
 
 import json
@@ -31,7 +36,7 @@ import torch
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel, ConfigDict, Field, validator
 
-# ── Logging ─────────────────────────────────────────────────────────────────
+# -- Logging ------------------------------------------------------------------
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s | %(levelname)s | %(message)s",
@@ -39,25 +44,24 @@ logging.basicConfig(
 )
 log = logging.getLogger("qi-inference")
 
-# ── App ──────────────────────────────────────────────────────────────────────
+# -- App ----------------------------------------------------------------------
 app = FastAPI(
     title="QI Financial Inference API",
-    description="Meta-ensemble signal inference for Quantum Insights × Financial RAG",
-    version="2.2.0",
+    description="Meta-ensemble signal inference for Quantum Insights x Financial RAG",
+    version="2.3.0",
 )
 
-# ── Path discovery ───────────────────────────────────────────────────────────
-# Instead of hardcoding a single directory, we search multiple possible locations.
-# This makes the app work regardless of whether files are in weights/ or configs/.
+# -- Path discovery -----------------------------------------------------------
 ROOT = Path(__file__).parent
 WEIGHTS_DIR = ROOT / "models" / "weights"
 CONFIGS_DIR = ROOT / "models" / "configs"
 
-# Configurable via environment variables - no hardcoding
+# Configurable via environment variables
 SIGNAL_BUY_THRESHOLD = float(os.environ.get("SIGNAL_BUY_THRESHOLD", "0.55"))
 SIGNAL_SELL_THRESHOLD = float(os.environ.get("SIGNAL_SELL_THRESHOLD", "0.55"))
 MODEL_FILENAME = os.environ.get("MODEL_FILENAME", "meta_ensemble_v2.pkl")
 MODEL_VERSION = os.environ.get("MODEL_VERSION", "meta_ensemble_v2")
+DEFAULT_FEATURE_COUNT = int(os.environ.get("DEFAULT_FEATURE_COUNT", "97"))
 
 
 def _find_file(*candidates: Path) -> Optional[Path]:
@@ -70,7 +74,7 @@ def _find_file(*candidates: Path) -> Optional[Path]:
     return None
 
 
-# ── Global model registry ────────────────────────────────────────────────────
+# -- Global model registry ----------------------------------------------------
 registry = {
     "meta_ensemble": None,
     "scaler": None,
@@ -81,27 +85,20 @@ registry = {
     "inference_count": 0,
 }
 
-# Default feature count - will be overridden by metadata if available
-DEFAULT_FEATURE_COUNT = int(os.environ.get("DEFAULT_FEATURE_COUNT", "97"))
 
-
-# ── Schemas ──────────────────────────────────────────────────────────────────
+# -- Schemas ------------------------------------------------------------------
 class PredictRequest(BaseModel):
-    """
-    Raw feature vector for a single ticker on a single date.
-    Features must be in the EXACT same order as used during training.
-    Feature count is determined at startup from metadata, defaults to 97.
-    """
+    """Raw feature vector for a single ticker on a single date."""
     features: list[float] = Field(
         ...,
-        description="Ordered feature vector (length must match model's expected feature count)"
+        description="Ordered feature vector (length must match model's expected feature count)",
     )
     ticker: Optional[str] = Field(None, description="Ticker symbol for logging")
     date: Optional[str] = Field(None, description="Trading date YYYY-MM-DD for logging")
 
     @validator("features")
     def check_no_nan(cls, v):
-        if any(x != x for x in v):   # NaN check
+        if any(x != x for x in v):
             raise ValueError("Feature vector contains NaN values. Run imputation before calling /predict.")
         if any(abs(x) > 1e9 for x in v):
             raise ValueError("Feature vector contains extreme values (>1e9). Check scaling pipeline.")
@@ -109,36 +106,35 @@ class PredictRequest(BaseModel):
 
 
 class PredictResponse(BaseModel):
-    model_config = ConfigDict(protected_namespaces=())  # Fix pydantic warning
+    model_config = ConfigDict(protected_namespaces=())
 
     ticker: Optional[str] = None
     date: Optional[str] = None
-    signal: str            # BUY | HOLD | SELL
-    confidence: float      # 0.0 → 1.0 (1.0 = maximum conviction)
-    prob_buy: float        # raw model output
+    signal: str
+    confidence: float
+    prob_buy: float
     prob_sell: float
-    regime: int            # HMM regime: 0=Bear, 1=Neutral, 2=Bull
+    regime: int
     regime_label: str
     latency_ms: float
     model_version: str = MODEL_VERSION
 
 
-# ── Model loading ─────────────────────────────────────────────────────────────
+# -- Model loading (each component independent) -------------------------------
 def _patch_torch_cpu():
-    """Force all torch.load calls to CPU - HF free tier has no GPU."""
+    """Force all torch.load calls to CPU -- HF free tier has no GPU."""
     _orig = torch.load
+
     def _cpu_load(*args, **kwargs):
         kwargs["map_location"] = torch.device("cpu")
         return _orig(*args, **kwargs)
+
     torch.load = _cpu_load
     return _orig
 
 
 def _load_feature_metadata() -> tuple[Optional[list[str]], Optional[int]]:
-    """
-    Load feature names/metadata from whichever file exists.
-    Returns (feature_names_list_or_None, feature_count_or_None).
-    """
+    """Load feature names/metadata. Returns (names_or_None, count_or_None)."""
     log.info("Searching for feature metadata...")
     path = _find_file(
         WEIGHTS_DIR / "feature_names.json",
@@ -152,29 +148,33 @@ def _load_feature_metadata() -> tuple[Optional[list[str]], Optional[int]]:
     with open(path) as f:
         data = json.load(f)
 
-    # Handle different formats: could be a list of names or a dict with metadata
     if isinstance(data, list):
         return data, len(data)
-    elif isinstance(data, dict):
-        # Try common keys
+    if isinstance(data, dict):
         names = data.get("feature_names") or data.get("features") or data.get("columns")
         count = data.get("feature_count") or data.get("n_features")
         if names:
             return names, len(names)
-        elif count:
+        if count:
             return None, int(count)
     return None, None
 
 
 def load_all_models():
+    """
+    Load models with graceful degradation.
+    ONLY meta_ensemble is fatal -- scaler, regime, metadata are all optional.
+    The app will start in degraded mode if optional models fail to load.
+    """
     global registry
     log.info("Loading model weights...")
     log.info("  WEIGHTS_DIR: %s (exists=%s)", WEIGHTS_DIR, WEIGHTS_DIR.exists())
     log.info("  CONFIGS_DIR: %s (exists=%s)", CONFIGS_DIR, CONFIGS_DIR.exists())
 
     orig_torch_load = _patch_torch_cpu()
+
     try:
-        # ── Meta ensemble ─────────────────────────────────────────
+        # -- Meta ensemble (REQUIRED -- failure is fatal) ---------------------
         log.info("Searching for meta ensemble model...")
         ensemble_path = _find_file(
             WEIGHTS_DIR / MODEL_FILENAME,
@@ -188,9 +188,9 @@ def load_all_models():
                 f"in {WEIGHTS_DIR} and {CONFIGS_DIR}"
             )
         registry["meta_ensemble"] = joblib.load(ensemble_path)
-        log.info("✅ Meta ensemble loaded from %s", ensemble_path.name)
+        log.info("Meta ensemble loaded from %s", ensemble_path.name)
 
-        # ── Scaler ────────────────────────────────────────────────
+        # -- Scaler (OPTIONAL -- degrade to no-scaling) -----------------------
         log.info("Searching for scaler...")
         scaler_path = _find_file(
             WEIGHTS_DIR / "scaler.pkl",
@@ -199,41 +199,61 @@ def load_all_models():
             WEIGHTS_DIR / "feature_scaler.pkl",
         )
         if scaler_path is not None:
-            registry["scaler"] = joblib.load(scaler_path)
-            log.info("✅ Scaler loaded from %s", scaler_path.name)
+            try:
+                registry["scaler"] = joblib.load(scaler_path)
+                log.info("Scaler loaded from %s", scaler_path.name)
+            except Exception as e:
+                log.warning("Scaler found but failed to load: %s -- continuing without scaler", e)
         else:
-            log.warning("⚠️  No scaler found - assuming features are pre-scaled")
+            log.warning("No scaler found -- assuming features are pre-scaled")
 
-        # ── Regime model ──────────────────────────────────────────
+        # -- Regime model (OPTIONAL -- degrade to regime=-1) ------------------
         log.info("Searching for regime model...")
         regime_path = _find_file(
             WEIGHTS_DIR / "regime_model.pkl",
             CONFIGS_DIR / "regime_model.pkl",
         )
         if regime_path is not None:
-            registry["regime_model"] = joblib.load(regime_path)
-            log.info("✅ Regime model loaded from %s", regime_path.name)
+            try:
+                registry["regime_model"] = joblib.load(regime_path)
+                log.info("Regime model loaded from %s", regime_path.name)
+            except Exception as e:
+                log.warning(
+                    "Regime model found but failed to load: %s -- "
+                    "regime detection disabled (will return -1/Unknown)",
+                    e,
+                )
         else:
-            log.warning("⚠️  No regime model found - regime will be set to -1")
+            log.warning("No regime model found -- regime will be set to -1")
 
-        # ── Feature metadata ──────────────────────────────────────
+        # -- Feature metadata (OPTIONAL -- degrade to default count) ----------
         feature_names, feature_count = _load_feature_metadata()
         if feature_names:
             registry["feature_names"] = feature_names
-            log.info("✅ Feature names loaded (%d features)", len(feature_names))
+            log.info("Feature names loaded (%d features)", len(feature_names))
         if feature_count:
             registry["feature_count"] = feature_count
-            log.info("✅ Feature count from metadata: %d", feature_count)
+            log.info("Feature count from metadata: %d", feature_count)
         else:
             registry["feature_count"] = DEFAULT_FEATURE_COUNT
-            log.info("ℹ️  Using default feature count: %d", DEFAULT_FEATURE_COUNT)
+            log.info("Using default feature count: %d", DEFAULT_FEATURE_COUNT)
 
         registry["loaded_at"] = time.time()
-        log.info("🚀 All models loaded and ready for inference")
+        log.info("All models loaded -- app ready for inference")
 
+    except FileNotFoundError as e:
+        # Meta ensemble not found -- truly fatal
+        log.error("FATAL: %s", e)
+        raise RuntimeError(str(e)) from e
     except Exception as e:
-        log.error("❌ Model load failed: %s", e)
-        raise RuntimeError(f"Model load failed: {e}") from e
+        # Meta ensemble failed to deserialize -- also fatal
+        if registry["meta_ensemble"] is None:
+            log.error("FATAL: Meta ensemble failed to load: %s", e)
+            raise RuntimeError(f"Meta ensemble load failed: {e}") from e
+        # If we get here, meta_ensemble loaded but something else blew up unexpectedly.
+        # Still start the app in degraded mode.
+        registry["loaded_at"] = time.time()
+        log.warning("Startup completed with errors: %s -- running in degraded mode", e)
     finally:
         torch.load = orig_torch_load
 
@@ -242,34 +262,32 @@ REGIME_LABELS = {0: "Bear", 1: "Neutral", 2: "Bull", -1: "Unknown"}
 
 
 def _get_regime(features_raw: np.ndarray) -> int:
-    """
-    Run HMM regime model on the raw (pre-scaling) feature slice.
-    Returns 0/1/2 or -1 if model not available.
-    """
+    """Run HMM regime model. Returns 0/1/2 or -1 if unavailable."""
     if registry["regime_model"] is None:
         return -1
     try:
         pred = registry["regime_model"].predict(features_raw.reshape(1, -1))
         return int(pred[0])
     except Exception as e:
-        log.warning("Regime model inference failed: %s", e)
+        log.warning("Regime inference failed: %s", e)
         return -1
 
 
-# ── Startup ───────────────────────────────────────────────────────────────────
+# -- Startup ------------------------------------------------------------------
 @app.on_event("startup")
 def startup_event():
     load_all_models()
 
 
-# ── Routes ────────────────────────────────────────────────────────────────────
+# -- Routes -------------------------------------------------------------------
 @app.get("/")
 def health():
-    """Health check - returns model load status and inference stats."""
+    """Health check -- returns model load status and inference stats."""
     expected = registry.get("feature_count") or DEFAULT_FEATURE_COUNT
     return {
         "status": "ok" if registry["meta_ensemble"] is not None else "degraded",
         "model": MODEL_VERSION,
+        "version": "2.3.0",
         "scaler_loaded": registry["scaler"] is not None,
         "regime_model_loaded": registry["regime_model"] is not None,
         "feature_names_loaded": registry["feature_names"] is not None,
@@ -286,10 +304,7 @@ def health():
 
 @app.get("/warmup")
 def warmup():
-    """
-    Pre-warm the model with a zero vector.
-    Call this from daily_signal_generation.py before the main loop.
-    """
+    """Pre-warm the model with a zero vector."""
     if registry["meta_ensemble"] is None:
         raise HTTPException(503, "Model not loaded")
     expected = registry.get("feature_count") or DEFAULT_FEATURE_COUNT
@@ -302,35 +317,32 @@ def warmup():
 
 @app.post("/predict", response_model=PredictResponse)
 def predict(req: PredictRequest):
-    """
-    Core inference endpoint.
-    Accepts a feature vector, returns BUY/HOLD/SELL signal.
-    """
+    """Core inference endpoint. Feature vector -> BUY/HOLD/SELL signal."""
     if registry["meta_ensemble"] is None:
-        raise HTTPException(503, "Model not loaded - try again in 30 seconds")
+        raise HTTPException(503, "Model not loaded -- try again in 30 seconds")
 
     t0 = time.perf_counter()
 
-    # ── Validate feature count ───────────────────────────────
+    # Validate feature count
     expected = registry.get("feature_count") or DEFAULT_FEATURE_COUNT
     if len(req.features) != expected:
         raise HTTPException(
             422,
             f"Expected {expected} features, got {len(req.features)}. "
-            f"Feature vector length must match training configuration."
+            f"Feature vector length must match training configuration.",
         )
 
     features_raw = np.array(req.features, dtype=np.float32)
 
-    # ── Regime detection (uses raw features before scaling) ──
+    # Regime detection (uses raw features before scaling)
     regime = _get_regime(features_raw)
 
-    # ── Scale features ───────────────────────────────────────
+    # Scale features
     X = features_raw.reshape(1, -1)
     if registry["scaler"] is not None:
         X = registry["scaler"].transform(X)
 
-    # ── Meta-ensemble inference ──────────────────────────────
+    # Meta-ensemble inference
     try:
         proba = registry["meta_ensemble"].predict_proba(X)[0]
     except Exception as e:
@@ -346,7 +358,7 @@ def predict(req: PredictRequest):
     else:
         raise HTTPException(500, f"Unexpected proba shape: {proba.shape}")
 
-    # ── Signal thresholds (configurable via env vars) ────────
+    # Signal thresholds
     if prob_buy >= SIGNAL_BUY_THRESHOLD:
         signal = "BUY"
     elif prob_sell >= SIGNAL_SELL_THRESHOLD:
