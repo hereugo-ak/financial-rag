@@ -1,0 +1,377 @@
+# financial_pipeline.yml
+# ======================
+# QI × Financial RAG — Complete Daily Pipeline
+# GitHub Actions Free Tier (public repo = unlimited minutes)
+#
+# Pipeline execution order each day (IST):
+#   04:05 PM  price_update         (yfinance → technical features → Supabase)
+#   04:30 PM  crossmarket_update   (US overnight + global risk → Supabase)
+#   04:30 PM  news_fetch_pm        (afternoon news sweep → embed → pgvector)
+#   04:30 PM  signal_generation    (features → HF Space → daily_signals)
+#   05:00 AM  daily_brief          (signals + macro + news → DIP → Supabase)
+#   05:30 AM  article_generation   (DIP → Groq Key 2 → 3 articles → Supabase)
+#   07:00 AM  macro_update         (FRED API → macro_snapshot → Supabase)
+#   08:00 AM  news_fetch_am        (morning news sweep → embed → pgvector)
+#   07:00 AM  macro_update         (FRED → macro_snapshot)
+#   Sunday    cleanup              (rolling window maintenance)
+#
+# All UTC times (IST = UTC+5:30):
+#   5:00 AM IST  = 23:30 UTC (prev day)
+#   5:30 AM IST  = 00:00 UTC
+#   7:00 AM IST  = 01:30 UTC
+#   8:00 AM IST  = 02:30 UTC
+#   4:05 PM IST  = 10:35 UTC
+#   4:30 PM IST  = 11:00 UTC
+
+name: Financial RAG Daily Pipeline
+
+on:
+  schedule:
+    # ── 4:05 PM IST — Price update (market close + 5 min buffer) ──────────────
+    - cron: "35 10 * * 1-5"    # Mon-Fri only
+
+    # ── 4:30 PM IST — Cross-market + News (PM) + Signal generation ───────────
+    - cron: "0 11 * * 1-5"
+
+    # ── 5:00 AM IST — Daily brief compilation ────────────────────────────────
+    - cron: "30 23 * * *"      # runs at 11:30 PM UTC = 5:00 AM IST next day
+
+    # ── 5:30 AM IST — Article generation ─────────────────────────────────────
+    - cron: "0 0 * * *"        # 00:00 UTC = 5:30 AM IST
+
+    # ── 7:00 AM IST — Macro update ────────────────────────────────────────────
+    - cron: "30 1 * * *"
+
+    # ── 8:00 AM IST — Morning news sweep ─────────────────────────────────────
+    - cron: "30 2 * * *"
+
+    # ── Sunday 11:30 PM IST — Weekly cleanup ─────────────────────────────────
+    - cron: "0 18 * * 0"
+
+  workflow_dispatch:
+    inputs:
+      pipeline:
+        description: "Which pipeline to run manually"
+        required: true
+        type: choice
+        options:
+          - price_update
+          - crossmarket_update
+          - news_fetch
+          - signal_generation
+          - daily_brief
+          - article_generation
+          - macro_update
+          - cleanup
+          - all
+
+env:
+  PYTHON_VERSION: "3.11"
+
+jobs:
+
+  # ============================================================
+  # JOB 1: PRICE UPDATE  (4:05 PM IST / 10:35 UTC, Mon-Fri)
+  # ============================================================
+  price_update:
+    name: "Price Update & Technical Features"
+    runs-on: ubuntu-latest
+    if: |
+      (github.event_name == 'schedule' && github.event.schedule == '35 10 * * 1-5') ||
+      (github.event_name == 'workflow_dispatch' && (github.event.inputs.pipeline == 'price_update' || github.event.inputs.pipeline == 'all'))
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: "pip"
+
+      - name: Install dependencies
+        run: pip install -r requirements_pipeline.txt
+
+      - name: Run price update
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
+          TWELVE_DATA_KEY: ${{ secrets.TWELVE_DATA_KEY }}
+        run: python pipelines/daily_price_update.py
+
+  # ============================================================
+  # JOB 2: CROSS-MARKET UPDATE  (4:30 PM IST / 11:00 UTC)
+  # ============================================================
+  crossmarket_update:
+    name: "Cross-Market & Global Risk"
+    runs-on: ubuntu-latest
+    if: |
+      (github.event_name == 'schedule' && github.event.schedule == '0 11 * * 1-5') ||
+      (github.event_name == 'workflow_dispatch' && (github.event.inputs.pipeline == 'crossmarket_update' || github.event.inputs.pipeline == 'all'))
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: "pip"
+
+      - name: Install dependencies
+        run: pip install -r requirements_pipeline.txt
+
+      - name: Run cross-market update
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
+        run: python pipelines/daily_crossmarket_update.py
+
+  # ============================================================
+  # JOB 3: SIGNAL GENERATION  (4:30 PM IST / 11:00 UTC)
+  # ============================================================
+  signal_generation:
+    name: "ML Signal Generation"
+    runs-on: ubuntu-latest
+    needs: price_update    # Signals depend on fresh features
+    if: |
+      (github.event_name == 'schedule' && github.event.schedule == '0 11 * * 1-5') ||
+      (github.event_name == 'workflow_dispatch' && (github.event.inputs.pipeline == 'signal_generation' || github.event.inputs.pipeline == 'all'))
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: "pip"
+
+      - name: Install dependencies
+        run: pip install -r requirements_pipeline.txt
+
+      - name: Run signal generation
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
+          HF_ENDPOINT: ${{ secrets.HF_ENDPOINT }}
+        run: python pipelines/daily_signal_generation.py
+
+      - name: Upload signal run log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: signal-log-${{ github.run_id }}
+          path: "*.log"
+          retention-days: 7
+
+  # ============================================================
+  # JOB 4: NEWS FETCH PM  (4:30 PM IST / 11:00 UTC)
+  # ============================================================
+  news_fetch_pm:
+    name: "PM News Sweep & Embedding"
+    runs-on: ubuntu-latest
+    if: |
+      (github.event_name == 'schedule' && github.event.schedule == '0 11 * * 1-5') ||
+      (github.event_name == 'workflow_dispatch' && (github.event.inputs.pipeline == 'news_fetch' || github.event.inputs.pipeline == 'all'))
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: "pip"
+
+      - name: Cache sentence-transformers model
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/huggingface
+          key: ${{ runner.os }}-minilm-l6-v2
+          restore-keys: ${{ runner.os }}-minilm-l6-v2
+
+      - name: Install dependencies
+        run: pip install -r requirements_pipeline.txt
+
+      - name: Run PM news fetch
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
+          NEWSAPI_KEY: ${{ secrets.NEWSAPI_KEY }}
+        run: python pipelines/daily_news_fetch.py --sweep pm
+
+  # ============================================================
+  # JOB 5: DAILY BRIEF  (5:00 AM IST / 23:30 UTC prev day)
+  # ============================================================
+  daily_brief:
+    name: "Compile Daily Intelligence Packet"
+    runs-on: ubuntu-latest
+    if: |
+      (github.event_name == 'schedule' && github.event.schedule == '30 23 * * *') ||
+      (github.event_name == 'workflow_dispatch' && (github.event.inputs.pipeline == 'daily_brief' || github.event.inputs.pipeline == 'all'))
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: "pip"
+
+      - name: Install dependencies
+        run: pip install -r requirements_pipeline.txt
+
+      - name: Compile daily brief
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
+        run: python pipelines/compile_daily_brief.py
+
+  # ============================================================
+  # JOB 6: ARTICLE GENERATION  (5:30 AM IST / 00:00 UTC)
+  # ============================================================
+  article_generation:
+    name: "Generate Bloomberg Articles"
+    runs-on: ubuntu-latest
+    needs: daily_brief    # Articles need the fresh DIP
+    if: |
+      (github.event_name == 'schedule' && github.event.schedule == '0 0 * * *') ||
+      (github.event_name == 'workflow_dispatch' && (github.event.inputs.pipeline == 'article_generation' || github.event.inputs.pipeline == 'all'))
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: "pip"
+
+      - name: Install dependencies
+        run: pip install -r requirements_pipeline.txt
+
+      - name: Generate articles
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
+          GROQ_API_KEY_2: ${{ secrets.GROQ_API_KEY_2 }}
+        run: python pipelines/generate_articles.py
+
+  # ============================================================
+  # JOB 7: MACRO UPDATE  (7:00 AM IST / 01:30 UTC)
+  # ============================================================
+  macro_update:
+    name: "FRED Macro Data Update"
+    runs-on: ubuntu-latest
+    if: |
+      (github.event_name == 'schedule' && github.event.schedule == '30 1 * * *') ||
+      (github.event_name == 'workflow_dispatch' && (github.event.inputs.pipeline == 'macro_update' || github.event.inputs.pipeline == 'all'))
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: "pip"
+
+      - name: Install dependencies
+        run: pip install -r requirements_pipeline.txt
+
+      - name: Run macro update
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
+          FRED_API_KEY: ${{ secrets.FRED_API_KEY }}
+        run: python pipelines/daily_macro_update.py
+
+  # ============================================================
+  # JOB 8: MORNING NEWS SWEEP  (8:00 AM IST / 02:30 UTC)
+  # ============================================================
+  news_fetch_am:
+    name: "AM News Sweep & Embedding"
+    runs-on: ubuntu-latest
+    if: |
+      (github.event_name == 'schedule' && github.event.schedule == '30 2 * * *') ||
+      (github.event_name == 'workflow_dispatch' && (github.event.inputs.pipeline == 'news_fetch' || github.event.inputs.pipeline == 'all'))
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: "pip"
+
+      - name: Cache sentence-transformers model
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/huggingface
+          key: ${{ runner.os }}-minilm-l6-v2
+          restore-keys: ${{ runner.os }}-minilm-l6-v2
+
+      - name: Install dependencies
+        run: pip install -r requirements_pipeline.txt
+
+      - name: Run AM news fetch
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
+          NEWSAPI_KEY: ${{ secrets.NEWSAPI_KEY }}
+        run: python pipelines/daily_news_fetch.py --sweep am
+
+  # ============================================================
+  # JOB 9: WEEKLY CLEANUP  (Sunday 11:30 PM IST / 18:00 UTC)
+  # ============================================================
+  cleanup:
+    name: "Weekly Supabase Cleanup"
+    runs-on: ubuntu-latest
+    if: |
+      (github.event_name == 'schedule' && github.event.schedule == '0 18 * * 0') ||
+      (github.event_name == 'workflow_dispatch' && (github.event.inputs.pipeline == 'cleanup' || github.event.inputs.pipeline == 'all'))
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: "pip"
+
+      - name: Install dependencies
+        run: pip install -r requirements_pipeline.txt
+
+      - name: Run cleanup
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
+        run: python pipelines/cleanup_old_data.py
+
+  # ============================================================
+  # FAILURE ALERT (fires if any job fails)
+  # ============================================================
+  notify_failure:
+    name: "Alert on Pipeline Failure"
+    runs-on: ubuntu-latest
+    needs:
+      - signal_generation
+      - article_generation
+      - daily_brief
+    if: failure()
+
+    steps:
+      - name: Post failure to Supabase alerts table
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
+        run: |
+          curl -s -X POST "$SUPABASE_URL/rest/v1/pipeline_alerts" \
+            -H "apikey: $SUPABASE_KEY" \
+            -H "Authorization: Bearer $SUPABASE_KEY" \
+            -H "Content-Type: application/json" \
+            -d "{\"run_id\":\"${{ github.run_id }}\",\"workflow\":\"${{ github.workflow }}\",\"severity\":\"HIGH\",\"message\":\"Pipeline job failed. Check Actions tab: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}\"}"
